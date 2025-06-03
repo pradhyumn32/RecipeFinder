@@ -1,0 +1,14 @@
+[{
+    "id" : 1,
+    "name" : "Aloo Paratha",
+    "image" : "https://www.shanazrafiq.com/wp-content/uploads/2016/03/2-DSC_0179.jpg",
+    "description" : "Aloo means “potato” and paratha means “flatbread” in Hindi, so the name is quite telling: aloo paratha is an unleavened whole wheat flatbread stuffed with a savory, spiced, mashed potato filling.",
+    "recipe" : "1. First, boil or steam 4 medium-sized potatoes in a pressure cooker, steamer or electric cooker. Add enough water in a 2-litre pressure cooker or pan to just barely cover the potatoes. On a medium heat, cook the potatoes in water for 3 to 4 whistles. When the pressure settles down naturally, remove the lid and drain the water very well. Allow the potatoes to cool enough to handle and then peel them. If you haven’t done so yet, peel and chop the warm potatoes. Then mash the potatoes with a potato masher.  The potatoes should be mashed very well, with no lumps, chunks or bits. Any lumps in the mix will cause the stuffing to leak out of the dough when rolling."
+},
+{
+    "id" : 2,
+    "name" : "Sandwich",
+    "image": "https://media.timeout.com/images/105727033/image.jpg",
+    "description" : "A sandwich is a quick meal that you can make easily with a variety of ingredients you have around your home. Sandwiches usually consist of meat, cheese, vegetables, and condiments in between 2 slices of bread. You can experiment with different ingredients in your sandwich or you can follow a recipe to make a well-known classic. Once you make your sandwich, enjoy it hot or cold with your favorite side!",
+    "recipe" : "Choose your bread (and if you want it toasted).Spread condiments like mayo, ketchup, or mustard.Layer meats, like ham, roast beef, or turkey on the bottom slice.Add slices of cheese, like Cheddar, Provolone, or Swiss.Top your sandwich with fresh veggies, like lettuce, onion, and tomato.Finish your sandwich with salt, pepper, or oregano."
+}]

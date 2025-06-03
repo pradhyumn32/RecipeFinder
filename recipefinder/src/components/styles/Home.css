@@ -1,0 +1,53 @@
+/* styles/Home.css */
+
+/* Base styles for the home container */
+.home-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Grid layout for the notes */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+  }
+  
+  /* Loading state styling */
+  .loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    color: #666;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .home-container {
+      padding: 10px;
+    }
+    
+    .notes-grid {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+  }
+  
+  /* If you want to add a header/title */
+  .home-header {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+  }
+  
+  .home-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+  }
+  
+  .home-header p {
+    color: #666;
+    font-size: 1.1rem;
+  }

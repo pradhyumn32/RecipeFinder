@@ -1,0 +1,4 @@
+[submodule "RecipeFinder"]
+	path = RecipeFinder
+	url = https://github.com/pradhyumn32/RecipeFinder.git
+	branch = master

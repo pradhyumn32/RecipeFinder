@@ -1,0 +1,99 @@
+/* styles/Header.css */
+
+header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    color: #ff6b6b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+  }
+  
+  .linkComponents {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  
+  .tab {
+    color: #555;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    padding: 0.5rem 0;
+    position: relative;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .tab:hover {
+    color: #ff6b6b;
+  }
+  
+  .tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #ff6b6b;
+    transition: width 0.3s ease;
+  }
+  
+  .tab:hover::after {
+    width: 100%;
+  }
+  
+  /* Active link styling */
+  .active .tab {
+    color: #ff6b6b;
+  }
+  
+  .active .tab::after {
+    width: 100%;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    header {
+      padding: 1rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  
+    .linkComponents {
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  
+    .tab {
+      font-size: 0.9rem;
+    }
+  }
+  
+  /* Add animation to the logo */
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  
+  header h1 svg {
+    animation: pulse 2s infinite;
+    color: #ff6b6b;
+  }

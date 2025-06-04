@@ -46,7 +46,7 @@ function CreateArea() {
     data.append('image', formData.image);
 
     try {
-      const res = await axios.post('http://localhost:5000/addRecipe', data, {
+      const res = await axios.post('https://recipefinder-coyf.onrender.com/addRecipe', data, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

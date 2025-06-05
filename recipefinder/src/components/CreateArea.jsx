@@ -12,6 +12,7 @@ function CreateArea() {
   });
   const [preview, setPreview] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   function handleChange(e) {
     setFormData({
@@ -22,6 +23,18 @@ function CreateArea() {
 
   function handleFileChange(e) {
     const file = e.target.files[0];
+    
+    // Validate file type and size
+    if (!file.type.match('image.*')) {
+      alert('Please select an image file (JPEG, PNG, etc.)');
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
     setFormData({
       ...formData,
       image: file
@@ -37,7 +50,14 @@ function CreateArea() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    
+    if (!formData.image) {
+      alert('Please select an image for your recipe');
+      return;
+    }
+
     setIsSubmitting(true);
+    setUploadProgress(0);
     
     const data = new FormData();
     data.append('name', formData.name);
@@ -46,11 +66,21 @@ function CreateArea() {
     data.append('image', formData.image);
 
     try {
-      const res = await axios.post('https://recipefinder-coyf.onrender.com/addRecipe', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      const res = await axios.post(
+        'https://recipefinder-af8u.onrender.com/addRecipe', 
+        data, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percentCompleted);
+          }
         }
-      });
+      );
       
       console.log('Success:', res.data);
       // Reset form after successful submission
@@ -61,10 +91,11 @@ function CreateArea() {
         image: null
       });
       setPreview('');
+      setUploadProgress(0);
       alert('Recipe added successfully!');
     } catch (err) {
-      console.error('Error:', err);
-      alert('Error adding recipe. Please try again.');
+      console.error('Error:', err.response?.data || err.message);
+      alert(`Error adding recipe: ${err.response?.data?.message || err.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -74,28 +105,43 @@ function CreateArea() {
     <div className="create-area">
       <h3>Share your own recipe</h3>
       <form onSubmit={handleSubmit}>
-      <div className="form-group">
-  <input 
-    type="file" 
-    id="image"
-    name="image" 
-    onChange={handleFileChange} 
-    accept="image/*"
-    required 
-  />
-  <label htmlFor="image" className="file-upload-label">
-    <UploadIcon />
-    <div className="file-upload-text">
-      {formData.image ? 'Change image' : 'Click to upload image'}
-      <br />
-      <span>or drag and drop</span>
-    </div>
-  </label>
-</div>
+        <div className="form-group">
+          <input 
+            type="file" 
+            id="image"
+            name="image" 
+            onChange={handleFileChange} 
+            accept="image/*"
+            required 
+            style={{ display: 'none' }}
+          />
+          <label htmlFor="image" className="file-upload-label">
+            <UploadIcon />
+            <div className="file-upload-text">
+              {formData.image ? formData.image.name : 'Click to upload image'}
+              <br />
+              <span>Supports: JPEG, PNG (Max 5MB)</span>
+            </div>
+          </label>
+        </div>
         
         {preview && (
           <div className="image-preview">
             <img src={preview} alt="Preview" />
+            <p className="file-info">
+              {formData.image?.name} • {(formData.image?.size / 1024 / 1024).toFixed(2)}MB
+            </p>
+          </div>
+        )}
+
+        {isSubmitting && uploadProgress > 0 && (
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${uploadProgress}%` }}
+            >
+              {uploadProgress}%
+            </div>
           </div>
         )}
 
@@ -138,14 +184,18 @@ function CreateArea() {
           />
         </div>
 
-        <button type="submit" disabled={isSubmitting}>
-  {isSubmitting ? (
-    <>
-      <span className="spinner"></span>
-      Submitting...
-    </>
-  ) : 'Submit Recipe'}
-</button>
+        <button 
+          type="submit" 
+          disabled={isSubmitting}
+          className={isSubmitting ? 'submitting' : ''}
+        >
+          {isSubmitting ? (
+            <>
+              <span className="spinner"></span>
+              Uploading... {uploadProgress}%
+            </>
+          ) : 'Submit Recipe'}
+        </button>
       </form>
     </div>
   );

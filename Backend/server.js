@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
 
-mongoose.connect('mongodb+srv://pradhyumnagrawal32:7240899561@cluster0.qu89wqe.mongodb.net'||'mongodb://localhost:27017/RecipeFinder', {
+mongoose.connect('mongodb+srv://pradhyumnagrawal32:7240899561@cluster0.qu89wqe.mongodb.net/RecipeFinder'||'mongodb://localhost:27017/RecipeFinder', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log('MongoDB is Connected'))

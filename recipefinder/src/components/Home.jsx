@@ -7,20 +7,23 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/getRecipe", {
-      mode: 'no-cors',
+  fetch("https://recipefinder-af8u.onrender.com/getRecipe")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
     })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-        setBackend(data);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error("Error fetching data:", error);
-        setIsLoading(false);
-      });
-  }, []);
+    .then(data => {
+      console.log(data);
+      setBackend(data);
+      setIsLoading(false);
+    })
+    .catch(error => {
+      console.error("Error fetching data:", error);
+      setIsLoading(false);
+    });
+}, []);
 
   return (
     <div className="home-container">
@@ -41,7 +44,7 @@ function Home() {
                 key={id} 
                 id={id} 
                 name={name} 
-                src={image} 
+                src={image ? `https://recipefinder-af8u.onrender.com${image}` : null} 
                 description={description} 
                 recipe={recipe}
               />

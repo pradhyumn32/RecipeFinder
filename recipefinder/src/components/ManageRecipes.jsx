@@ -15,7 +15,7 @@ const ManageRecipes = () => {
   useEffect(() => {
     const fetchUserRecipes = async () => {
       try {
-        const response = await fetch('http://localhost:5000/myRecipes', {
+        const response = await fetch('https://recipefinder-af8u.onrender.com/myRecipes', {
           credentials: 'include'
         });
         
@@ -47,7 +47,7 @@ const ManageRecipes = () => {
     if (!window.confirm('Are you sure you want to delete this recipe?')) return;
     
     try {
-      const response = await fetch(`http://localhost:5000/recipes/${recipeId}`, {
+      const response = await fetch(`https://recipefinder-af8u.onrender.com/recipes/${recipeId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -67,7 +67,7 @@ const ManageRecipes = () => {
     const formData = new FormData(e.target);
     
     try {
-      const response = await fetch(`http://localhost:5000/recipes/${editingRecipe._id}`, {
+      const response = await fetch(`https://recipefinder-af8u.onrender.com/recipes/${editingRecipe._id}`, {
         method: 'PUT',
         body: formData,
         credentials: 'include'

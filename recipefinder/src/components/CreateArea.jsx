@@ -67,20 +67,22 @@ function CreateArea() {
 
     try {
       const res = await axios.post(
-        'https://recipefinder-af8u.onrender.com/addRecipe', 
-        data, 
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(percentCompleted);
-          }
-        }
+  'https://recipefinder-af8u.onrender.com/addRecipe', 
+  data, 
+  {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    withCredentials: true, // 👈 REQUIRED for cookie to be sent
+    onUploadProgress: (progressEvent) => {
+      const percentCompleted = Math.round(
+        (progressEvent.loaded * 100) / progressEvent.total
       );
+      setUploadProgress(percentCompleted);
+    }
+  }
+);
+
       
       console.log('Success:', res.data);
       // Reset form after successful submission

@@ -1,34 +1,56 @@
-/* styles/Header.css */
+/* src/styles/Header.css */
+.header-container {
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
 
-header {
-    background-color: #ffffff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  
-  header h1 {
-    font-size: 1.8rem;
-    margin: 0;
-    color: #ff6b6b;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 700;
-  }
-  
-  .linkComponents {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-  }
-  
-  .tab {
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-size: 1.8rem;
+  color: #4CAF50;
+}
+
+.logo-icon {
+  margin-right: 0.5rem;
+  font-size: 2rem;
+}
+
+.linkComponents {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: #4CAF50;
+}
+
+.tab {
     color: #555;
     font-size: 1rem;
     font-weight: 600;
@@ -40,7 +62,7 @@ header {
   }
   
   .tab:hover {
-    color: #ff6b6b;
+    color: #4CAF50;
   }
   
   .tab::after {
@@ -66,34 +88,30 @@ header {
   .active .tab::after {
     width: 100%;
   }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    header {
-      padding: 1rem;
-      flex-direction: column;
-      gap: 1rem;
-    }
-  
-    .linkComponents {
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-  
-    .tab {
-      font-size: 0.9rem;
-    }
-  }
-  
-  /* Add animation to the logo */
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-  }
-  
-  header h1 svg {
-    animation: pulse 2s infinite;
-    color: #ff6b6b;
-  }
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.welcome {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.logout-btn {
+  color: #000000;
+  background-color: #f5f5f5;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}

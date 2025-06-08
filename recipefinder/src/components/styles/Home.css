@@ -51,3 +51,19 @@
     color: #666;
     font-size: 1.1rem;
   }
+  
+  /* Add to Home.css */
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.5rem;
+  color: #4CAF50;
+}
+
+.welcome-user {
+  font-style: italic;
+  color: #4CAF50;
+  margin-top: 5px;
+}

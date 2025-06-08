@@ -21,10 +21,12 @@ mongoose.connect('mongodb+srv://pradhyumnagrawal32:7240899561@cluster0.qu89wqe.m
 .catch(err => console.log('Mongo error', err));
 
 const app = express();
-
+const frontendUrl = process.env.FRONTEND_URL;
+const backendUrl = process.env.BACKEND_URL;
+                                    
 // Enhanced CORS configuration
 app.use(cors({
-  origin: 'https://recipefinder-frontend-6rij.onrender.com',
+  origin: process.env.FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -147,7 +149,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "https://recipefinder-af8u.onrender.com/auth/google/callback"
+  callbackURL: `${backendUrl}/auth/google/callback`
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Check for existing user by googleId
@@ -187,7 +189,7 @@ app.get('/auth/google',
 
 app.get('/auth/google/callback',
   passport.authenticate('google', { 
-    failureRedirect: 'https://recipefinder-frontend-6rij.onrender.com/login',
+    failureRedirect: `${frontendUrl}/login`,
     session: true
   }),
   (req, res) => {
@@ -195,7 +197,7 @@ app.get('/auth/google/callback',
     const token = generateToken(req.user._id);
     
     // Redirect to frontend with token as query parameter
-    res.redirect(`https://recipefinder-frontend-6rij.onrender.com
+    res.redirect(`${frontendUrl}
     ./oauth/callback?token=${token}`);
   }
 );

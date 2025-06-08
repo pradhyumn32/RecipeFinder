@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('http://localhost:5000/profile', {
+        const response = await fetch('https://recipefinder-af8u.onrender.com/profile', {
           credentials: 'include'
         });
         
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/login', {
+      const response = await fetch('https://recipefinder-af8u.onrender.com/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (username, email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/register', {
+      const response = await fetch('https://recipefinder-af8u.onrender.com/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch('http://localhost:5000/logout', {
+      await fetch('https://recipefinder-af8u.onrender.com/logout', {
         method: 'POST',
         credentials: 'include'
       });
@@ -100,7 +100,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleOAuthCallback = async (token) => {
   try {
-    const response = await fetch('http://localhost:5000/api/auth/verify', {
+    const response = await fetch('https://recipefinder-af8u.onrender.com/api/auth/verify', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

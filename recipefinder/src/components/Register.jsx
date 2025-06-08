@@ -29,7 +29,7 @@ const Register = () => {
 
   const handleGoogleLogin = () => {
     // Redirect to backend Google OAuth endpoint
-    window.location.href = 'http://localhost:5000/auth/google';
+    window.location.href = 'https://recipefinder-af8u.onrender.com/auth/google';
   };
 
   return (

@@ -147,7 +147,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:5000/auth/google/callback"
+  callbackURL: "https://recipefinder-af8u.onrender.com/auth/google/callback"
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Check for existing user by googleId
@@ -187,7 +187,7 @@ app.get('/auth/google',
 
 app.get('/auth/google/callback',
   passport.authenticate('google', { 
-    failureRedirect: 'http://localhost:3000/login',
+    failureRedirect: 'https://recipefinder-frontend-6rij.onrender.com/login',
     session: true
   }),
   (req, res) => {
@@ -195,7 +195,8 @@ app.get('/auth/google/callback',
     const token = generateToken(req.user._id);
     
     // Redirect to frontend with token as query parameter
-    res.redirect(`http://localhost:3000/oauth/callback?token=${token}`);
+    res.redirect(`https://recipefinder-frontend-6rij.onrender.com
+    ./oauth/callback?token=${token}`);
   }
 );
 

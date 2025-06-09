@@ -21,16 +21,13 @@ mongoose.connect('mongodb+srv://pradhyumnagrawal32:7240899561@cluster0.qu89wqe.m
 .catch(err => console.log('Mongo error', err));
 
 const app = express();
-const frontendUrl = process.env.FRONTEND_URL;
-const backendUrl = process.env.BACKEND_URL;
-                                    
+
 // Enhanced CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 app.use(bodyParser.json());
@@ -38,14 +35,13 @@ app.use(cookieParser());
 
 // Session configuration for OAuth
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost'
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
 
@@ -112,24 +108,25 @@ const generateToken = (userId) => {
 
 // Authentication middleware (updated for both session and JWT)
 const authMiddleware = async (req, res, next) => {
-  // 1. Check session
-  if (req.isAuthenticated()) return next();
+  // Check for JWT token first
+  const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
   
-  // 2. Check for token in cookies or header
-  const token = req.cookies?.token || 
-                req.headers.authorization?.replace('Bearer ', '');
-  
-  if (token && token !== 'undefined') {
+  if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_SECRET);
       req.user = await User.findById(decoded.id);
       return next();
     } catch (err) {
-      console.error('JWT Error:', err);
+      // Token is invalid, continue to check session
     }
   }
-  
-  res.status(401).json({ message: 'Please authenticate' });
+
+  // Check for passport session
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  return res.status(401).json({ message: 'Authentication required' });
 };
 
 // Passport serialization
@@ -150,7 +147,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `${backendUrl}/auth/google/callback`
+  callbackURL: "http://localhost:5000/auth/google/callback"
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Check for existing user by googleId
@@ -180,12 +177,6 @@ passport.use(new GoogleStrategy({
   }
 }));
 
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`);
-  next();
-});
-
 // Google OAuth Routes
 app.get('/auth/google',
   passport.authenticate('google', { 
@@ -196,7 +187,7 @@ app.get('/auth/google',
 
 app.get('/auth/google/callback',
   passport.authenticate('google', { 
-    failureRedirect: `${frontendUrl}/login`,
+    failureRedirect: 'http://localhost:3000/login',
     session: true
   }),
   (req, res) => {
@@ -204,7 +195,7 @@ app.get('/auth/google/callback',
     const token = generateToken(req.user._id);
     
     // Redirect to frontend with token as query parameter
-    res.redirect(`${frontendUrl}/oauth/callback?token=${token}`);
+    res.redirect(`http://localhost:3000/oauth/callback?token=${token}`);
   }
 );
 
@@ -334,48 +325,29 @@ app.post('/register', async (req, res) => {
 });
 
 // User Login (unchanged)
-// Update your login route to return token
-// Updated login route in server.js
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    // Find user by email
     const user = await User.findOne({ email }).select('+password');
-    if (!user) {
+    
+    if (!user || !user.password) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-    
-    // Check password
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-    
-    // Generate token
+
     const token = generateToken(user._id);
-    
-    // Set cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      maxAge: 86400000 // 24 hours
-    });
-    
-    // Return response
+    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+
     res.json({ 
       message: 'Logged in successfully',
-      user: { 
-        id: user._id, 
-        username: user.username, 
-        email: user.email 
-      },
-      token
+      user: { id: user._id, username: user.username, email: user.email }
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Login failed', error: error.message });
+    res.status(500).json({ message: 'Login failed', error });
   }
 });
 
@@ -431,21 +403,11 @@ app.post('/api/auth/verify', async (req, res) => {
 });
 
 // Logout (updated to handle both session and JWT)
-// Updated logout route
 app.post('/logout', (req, res) => {
-  // Passport logout with callback
-  req.logout((err) => {
-    if (err) {
-      console.error('Logout error:', err);
-      return res.status(500).json({ message: 'Error during logout' });
-    }
-    
-    // Clear cookies
-    res.clearCookie('token');
-    res.clearCookie('connect.sid');
-    
-    res.json({ message: 'Logged out successfully' });
-  });
+  req.logout(); // For passport session
+  res.clearCookie('token'); // For JWT
+  res.clearCookie('connect.sid'); // For session
+  res.json({ message: 'Logged out successfully' });
 });
 
 // Get all recipes for the current user (already exists in your code)
@@ -530,7 +492,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something broke!', error: err.message });
 });
-app.set('trust proxy', 1); // If behind a proxy like Render
+
 app.listen(5000, () => {
     console.log("Server has started on Port 5000");
 });

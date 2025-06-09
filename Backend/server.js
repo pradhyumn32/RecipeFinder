@@ -111,13 +111,12 @@ const generateToken = (userId) => {
 
 // Authentication middleware (updated for both session and JWT)
 const authMiddleware = async (req, res, next) => {
-  console.log('Auth Headers:', req.headers); // Debug logging
-  
-  // 1. Check session first
+  // 1. Check session
   if (req.isAuthenticated()) return next();
-
-  // 2. Check for JWT token
-  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+  
+  // 2. Check for token in cookies or header
+  const token = req.cookies?.token || 
+                req.headers.authorization?.replace('Bearer ', '');
   
   if (token && token !== 'undefined') {
     try {
@@ -128,9 +127,8 @@ const authMiddleware = async (req, res, next) => {
       console.error('JWT Error:', err);
     }
   }
-
-  // 3. If no valid auth
-  return res.status(401).json({ message: 'Authentication required' });
+  
+  res.status(401).json({ message: 'Please authenticate' });
 };
 
 // Passport serialization
@@ -331,26 +329,26 @@ app.post('/register', async (req, res) => {
 });
 
 // User Login (unchanged)
+// Update your login route to return token
 app.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email }).select('+password');
+    // ... existing auth logic
     
-    if (!user || !user.password) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
     const token = generateToken(user._id);
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-
+    
+    // Set cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      maxAge: 86400000
+    });
+    
+    // Also return token in response
     res.json({ 
       message: 'Logged in successfully',
-      user: { id: user._id, username: user.username, email: user.email }
+      user: { id: user._id, username: user.username, email: user.email },
+      token // Send token for localStorage
     });
   } catch (error) {
     res.status(500).json({ message: 'Login failed', error });

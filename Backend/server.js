@@ -26,10 +26,10 @@ const backendUrl = process.env.BACKEND_URL;
                                     
 // Enhanced CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(bodyParser.json());
@@ -44,8 +44,7 @@ app.use(session({
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000,
-    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost'
   }
 }));
 
@@ -112,25 +111,27 @@ const generateToken = (userId) => {
 
 // Authentication middleware (updated for both session and JWT)
 const authMiddleware = async (req, res, next) => {
-  // Check for JWT token first
- const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+  console.log('Auth Headers:', req.headers); // Debug logging
   
-  if (token) {
+  // 1. Check session first
+  if (req.isAuthenticated()) return next();
+
+  // 2. Check for JWT token
+  const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
+  
+  if (token && token !== 'undefined') {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id);
       return next();
     } catch (err) {
-      // Token is invalid, continue to check session
-        console.error('JWT verification failed:', err);
+      console.error('JWT Error:', err);
     }
   }
-console.log('Auth Middleware:', {
-  cookies: req.cookies,
-  headers: req.headers,
-  isAuthenticated: req.isAuthenticated(),
-  user: req.user
-});
+
+  // 3. If no valid auth
+  return res.status(401).json({ message: 'Authentication required' });
+};
 
   // Check for passport session
   if (req.isAuthenticated()) {

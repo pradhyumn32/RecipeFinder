@@ -197,8 +197,7 @@ app.get('/auth/google/callback',
     const token = generateToken(req.user._id);
     
     // Redirect to frontend with token as query parameter
-    res.redirect(`${frontendUrl}
-    ./oauth/callback?token=${token}`);
+    res.redirect(`${frontendUrl}/oauth/callback?token=${token}`);
   }
 );
 
@@ -495,7 +494,7 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something broke!', error: err.message });
 });
-
+app.set('trust proxy', 1); // If behind a proxy like Render
 app.listen(5000, () => {
     console.log("Server has started on Port 5000");
 });

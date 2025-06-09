@@ -133,14 +133,6 @@ const authMiddleware = async (req, res, next) => {
   return res.status(401).json({ message: 'Authentication required' });
 };
 
-  // Check for passport session
-  if (req.isAuthenticated()) {
-    return next();
-  }
-
-  return res.status(401).json({ message: 'Authentication required' });
-};
-
 // Passport serialization
 passport.serializeUser((user, done) => {
   done(null, user._id);

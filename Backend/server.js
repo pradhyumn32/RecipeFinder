@@ -37,13 +37,15 @@ app.use(cookieParser());
 
 // Session configuration for OAuth
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000,
+    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
   }
 }));
 
@@ -111,7 +113,7 @@ const generateToken = (userId) => {
 // Authentication middleware (updated for both session and JWT)
 const authMiddleware = async (req, res, next) => {
   // Check for JWT token first
-  const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+ const token = req.cookies?.token || req.headers.authorization?.split(' ')[1];
   
   if (token) {
     try {
@@ -120,8 +122,15 @@ const authMiddleware = async (req, res, next) => {
       return next();
     } catch (err) {
       // Token is invalid, continue to check session
+        console.error('JWT verification failed:', err);
     }
   }
+console.log('Auth Middleware:', {
+  cookies: req.cookies,
+  headers: req.headers,
+  isAuthenticated: req.isAuthenticated(),
+  user: req.user
+});
 
   // Check for passport session
   if (req.isAuthenticated()) {
@@ -178,6 +187,8 @@ passport.use(new GoogleStrategy({
     return done(err, null);
   }
 }));
+
+app.set('trust proxy', 1);
 
 // Google OAuth Routes
 app.get('/auth/google',

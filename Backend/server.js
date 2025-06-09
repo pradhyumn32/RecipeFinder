@@ -407,11 +407,21 @@ app.post('/api/auth/verify', async (req, res) => {
 });
 
 // Logout (updated to handle both session and JWT)
+// Updated logout route
 app.post('/logout', (req, res) => {
-  req.logout(); // For passport session
-  res.clearCookie('token'); // For JWT
-  res.clearCookie('connect.sid'); // For session
-  res.json({ message: 'Logged out successfully' });
+  // Passport logout with callback
+  req.logout((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+      return res.status(500).json({ message: 'Error during logout' });
+    }
+    
+    // Clear cookies
+    res.clearCookie('token');
+    res.clearCookie('connect.sid');
+    
+    res.json({ message: 'Logged out successfully' });
+  });
 });
 
 // Get all recipes for the current user (already exists in your code)

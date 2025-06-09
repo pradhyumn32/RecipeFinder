@@ -29,7 +29,8 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Authorization']
 }));
 
 app.use(bodyParser.json());
@@ -179,7 +180,11 @@ passport.use(new GoogleStrategy({
   }
 }));
 
-app.set('trust proxy', 1);
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
 // Google OAuth Routes
 app.get('/auth/google',
@@ -330,10 +335,24 @@ app.post('/register', async (req, res) => {
 
 // User Login (unchanged)
 // Update your login route to return token
+// Updated login route in server.js
 app.post('/login', async (req, res) => {
   try {
-    // ... existing auth logic
+    const { email, password } = req.body;
     
+    // Find user by email
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    
+    // Generate token
     const token = generateToken(user._id);
     
     // Set cookie
@@ -341,17 +360,22 @@ app.post('/login', async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
-      maxAge: 86400000
+      maxAge: 86400000 // 24 hours
     });
     
-    // Also return token in response
+    // Return response
     res.json({ 
       message: 'Logged in successfully',
-      user: { id: user._id, username: user.username, email: user.email },
-      token // Send token for localStorage
+      user: { 
+        id: user._id, 
+        username: user.username, 
+        email: user.email 
+      },
+      token
     });
   } catch (error) {
-    res.status(500).json({ message: 'Login failed', error });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Login failed', error: error.message });
   }
 });
 

@@ -41,6 +41,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+    sameSite: 'none', // Required for cross-origin
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
@@ -313,7 +314,13 @@ app.post('/register', async (req, res) => {
     await user.save();
 
     const token = generateToken(user._id);
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    // res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.cookie('token', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    maxAge: 3600000
+});
 
     res.status(201).json({ 
       message: 'User registered successfully',
@@ -340,7 +347,13 @@ app.post('/login', async (req, res) => {
     }
 
     const token = generateToken(user._id);
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: "none" });
+    // res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true, // Always true on Render
+      sameSite: 'none', // Required for cross-origin
+      maxAge: 3600000 // 1 hour
+});
 
     res.json({ 
       message: 'Logged in successfully',
@@ -408,8 +421,16 @@ app.post('/logout', (req, res, next) => {
     if (err) { return next(err); }
 
     // Clear cookies
-    res.clearCookie('token');       // For JWT
-    res.clearCookie('connect.sid'); // For session
+    // res.clearCookie('token');       // For JWT
+    res.clearCookie('token', {
+      secure: true,
+      sameSite: 'none'
+});
+    // res.clearCookie('connect.sid'); // For session
+    res.clearCookie('connect.sid', {
+      secure: true,
+      sameSite: 'none'
+});
 
     res.json({ message: 'Logged out successfully' });
   });

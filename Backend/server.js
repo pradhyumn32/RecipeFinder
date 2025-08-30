@@ -14,7 +14,7 @@ const session = require('express-session');
 // Load environment variables from .env file
 require('dotenv').config();
 
-mongoose.connect('mongodb+srv://pradhyumnagrawal32:7240899561@cluster0.qu89wqe.mongodb.net/RecipeFinder', {
+mongoose.connect('mongodb+srv://pradhyumnagrawal32:Devilucy%4032@cluster0.3hfjfvh.mongodb.net/RecipeFinder', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log('MongoDB is Connected'))
@@ -24,7 +24,7 @@ const app = express();
 
 // Enhanced CORS configuration
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -147,7 +147,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:5000/auth/google/callback"
+  callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Check for existing user by googleId
@@ -187,7 +187,7 @@ app.get('/auth/google',
 
 app.get('/auth/google/callback',
   passport.authenticate('google', { 
-    failureRedirect: 'http://localhost:3000/login',
+    failureRedirect: `${process.env.FRONTEND_URL}/login`,
     session: true
   }),
   (req, res) => {
@@ -195,7 +195,7 @@ app.get('/auth/google/callback',
     const token = generateToken(req.user._id);
     
     // Redirect to frontend with token as query parameter
-    res.redirect(`http://localhost:3000/oauth/callback?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL}/oauth/callback?token=${token}`);
   }
 );
 
@@ -403,12 +403,18 @@ app.post('/api/auth/verify', async (req, res) => {
 });
 
 // Logout (updated to handle both session and JWT)
-app.post('/logout', (req, res) => {
-  req.logout(); // For passport session
-  res.clearCookie('token'); // For JWT
-  res.clearCookie('connect.sid'); // For session
-  res.json({ message: 'Logged out successfully' });
+app.post('/logout', (req, res, next) => {
+  req.logout(function (err) {
+    if (err) { return next(err); }
+
+    // Clear cookies
+    res.clearCookie('token');       // For JWT
+    res.clearCookie('connect.sid'); // For session
+
+    res.json({ message: 'Logged out successfully' });
+  });
 });
+
 
 // Get all recipes for the current user (already exists in your code)
 app.get('/myRecipes', authMiddleware, async (req, res) => {
